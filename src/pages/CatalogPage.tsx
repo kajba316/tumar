@@ -44,9 +44,10 @@ export default function CatalogPage({ onNavigate, onAddToCart, initialCategory }
     if (initialCategory) setSelectedCat(initialCategory);
   }, [initialCategory]);
 
+  const ALL_SLUG = 'category-mrymvcnj';
   let filtered = products;
-  if (selectedCat !== 'all') {
-    filtered = products.filter((p) => p.show_in_all_categories || p.category?.slug === selectedCat);
+  if (selectedCat !== 'all' && selectedCat !== ALL_SLUG) {
+    filtered = products.filter((p) => p.category?.slug === ALL_SLUG || p.category?.slug === selectedCat);
   }
   if (sortBy === 'price-asc') {
     filtered = [...filtered].sort((a, b) => a.price - b.price);

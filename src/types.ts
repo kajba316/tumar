@@ -33,7 +33,6 @@ export type Product = {
   in_stock: boolean;
   stock_quantity: number;
   is_published: boolean;
-  show_in_all_categories: boolean;
   display_order: number;
   created_at: string;
   category?: Category;
