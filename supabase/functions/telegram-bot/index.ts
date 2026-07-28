@@ -471,7 +471,7 @@ async function handleDelivery(chatId: number) {
     }
   }
 
-  text += `\nОформить заказ: ${SITE_URL}/catalog`;
+  text += `\nОформить заказ: ${SITE_URL}/#/catalog`;
   await sendMessage(chatId, text, mainKeyboard());
 }
 
@@ -517,7 +517,7 @@ async function handleAuth(chatId: number) {
     chatId,
     `👤 <b>Вход в аккаунт Tumar</b>\n\n` +
       `Если у вас уже есть аккаунт на сайте Tumar, вы можете войти прямо здесь.\n\n` +
-      `Если аккаунта ещё нет — сначала зарегистрируйтесь на сайте:\n👉 ${SITE_URL}/register`,
+      `Если аккаунта ещё нет — сначала зарегистрируйтесь на сайте:\n👉 ${SITE_URL}/#/register`,
     [
       [{ text: "✅ У меня есть аккаунт", callback_data: "auth_start" }],
       [{ text: "⬅ Назад", callback_data: "cmd_start" }],
