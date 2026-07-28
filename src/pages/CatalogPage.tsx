@@ -46,7 +46,7 @@ export default function CatalogPage({ onNavigate, onAddToCart, initialCategory }
 
   let filtered = products;
   if (selectedCat !== 'all') {
-    filtered = products.filter((p) => p.category?.slug === selectedCat);
+    filtered = products.filter((p) => p.show_in_all_categories || p.category?.slug === selectedCat);
   }
   if (sortBy === 'price-asc') {
     filtered = [...filtered].sort((a, b) => a.price - b.price);

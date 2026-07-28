@@ -217,6 +217,7 @@ function ProductForm({ product, categories, onSave, onClose }: {
   const [price, setPrice] = useState(product?.price?.toString() || '');
   const [oldPrice, setOldPrice] = useState(product?.old_price?.toString() || '');
   const [categoryId, setCategoryId] = useState(product?.category_id || '');
+  const [showInAll, setShowInAll] = useState(product?.show_in_all_categories ?? false);
   const [imageUrl, setImageUrl] = useState(product?.image_url || '');
   const [images, setImages] = useState<string[]>(product?.images || []);
   const [description, setDescription] = useState(product?.description || '');
@@ -245,7 +246,8 @@ function ProductForm({ product, categories, onSave, onClose }: {
       name_kg: nameKg || null,
       price: parseFloat(price),
       old_price: oldPrice ? parseFloat(oldPrice) : null,
-      category_id: categoryId || null,
+      category_id: showInAll ? null : (categoryId || null),
+      show_in_all_categories: showInAll,
       image_url: imageUrl || null,
       images,
       description: description || null,
@@ -338,9 +340,13 @@ function ProductForm({ product, categories, onSave, onClose }: {
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Категория</label>
               <div className="flex gap-2">
-                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
+                <select value={showInAll ? '__all__' : categoryId} onChange={(e) => {
+                  if (e.target.value === '__all__') { setShowInAll(true); setCategoryId(''); }
+                  else { setShowInAll(false); setCategoryId(e.target.value); }
+                }}
                   className="flex-1 px-4 py-2.5 rounded-xl border focus:outline-none"
                   style={inputStyle}>
+                  <option value="__all__">Все категории</option>
                   <option value="">—</option>
                   {categoryList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
