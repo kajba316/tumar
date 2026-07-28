@@ -1,0 +1,66 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        sand: {
+          50: '#fbf6ee',
+          100: '#f3e9d6',
+          200: '#e8d4b5',
+          300: '#d9ba8e',
+          400: '#c79a64',
+          500: '#b5824a',
+          600: '#9a6a3a',
+          700: '#7e5530',
+          800: '#5e3f24',
+          900: '#3a2818',
+        },
+        kyrgyz: {
+          50: '#fef3f2',
+          100: '#fde4e1',
+          200: '#fbcec8',
+          300: '#f7aaa0',
+          400: '#f07a6a',
+          500: '#e6503a',
+          600: '#d63924',
+          700: '#b32a1c',
+          800: '#8f2419',
+          900: '#6b1d15',
+        },
+        felt: {
+          50: '#f6f1ec',
+          100: '#e7d9cc',
+          200: '#cdb29b',
+          300: '#a8856a',
+          400: '#7a5c44',
+          500: '#5c4232',
+          600: '#4a3428',
+          700: '#3a2820',
+          800: '#2a1d16',
+          900: '#1a110d',
+        },
+        gold: {
+          50: '#fdf9ed',
+          100: '#f9edc8',
+          200: '#f2d98c',
+          300: '#e9c25c',
+          400: '#dca938',
+          500: '#c4902a',
+          600: '#a3721f',
+          700: '#82591a',
+          800: '#5e3f12',
+          900: '#3a260a',
+        },
+      },
+      fontFamily: {
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        body: ['"Nunito Sans"', 'system-ui', 'sans-serif'],
+      },
+      backgroundImage: {
+        'kyrgyz-pattern': "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23dca938' fill-opacity='0.05'%3E%3Cpath d='M40 10 L50 25 L40 40 L30 25 Z'/%3E%3Cpath d='M40 70 L50 55 L40 40 L30 55 Z'/%3E%3Cpath d='M10 40 L25 30 L40 40 L25 50 Z'/%3E%3Cpath d='M70 40 L55 30 L40 40 L55 50 Z'/%3E%3Ccircle cx='40' cy='40' r='3'/%3E%3C/g%3E%3C/svg%3E\")",
+      },
+    },
+  },
+  plugins: [],
+};

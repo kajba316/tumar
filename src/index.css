@@ -1,0 +1,294 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== THEME VARIABLES ===== */
+:root,
+[data-theme="light"] {
+  --bg-base: #faf4ea;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #f3e9d6;
+  --bg-card: #fffaf2;
+  --bg-input: #fdf8ef;
+  --text-primary: #3a2818;
+  --text-secondary: #5e3f24;
+  --text-muted: #9a6a3a;
+  --text-faint: #b5824a;
+  --border-default: #e8d4b5;
+  --border-strong: #d9ba8e;
+  --accent: #d63924;
+  --accent-dark: #b32a1c;
+  --accent-light: #fde4e1;
+  --gold: #c4902a;
+  --gold-light: #e9c25c;
+  --gold-dark: #82591a;
+  --pattern-color: #c4902a;
+  --pattern-opacity: 0.06;
+  --shadow: 0 2px 12px rgba(122, 92, 68, 0.1);
+  --shadow-lg: 0 8px 30px rgba(122, 92, 68, 0.15);
+  --ornament-color: #c4902a;
+}
+
+[data-theme="dark"] {
+  --bg-base: #2a1d16;
+  --bg-elevated: #3a2820;
+  --bg-sunken: #1a110d;
+  --bg-card: #3a2820;
+  --bg-input: #4a3428;
+  --text-primary: #fbf6ee;
+  --text-secondary: #e8d4b5;
+  --text-muted: #c79a64;
+  --text-faint: #a8856a;
+  --border-default: #5c4232;
+  --border-strong: #7a5c44;
+  --accent: #e6503a;
+  --accent-dark: #d63924;
+  --accent-light: #8f2419;
+  --gold: #dca938;
+  --gold-light: #e9c25c;
+  --gold-dark: #a3721f;
+  --pattern-color: #dca938;
+  --pattern-opacity: 0.04;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --ornament-color: #dca938;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    @apply font-body antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* ===== ORNAMENT DIVIDER ===== */
+  .ornament-divider {
+    @apply flex items-center justify-center gap-3 my-6;
+  }
+  .ornament-divider::before,
+  .ornament-divider::after {
+    content: '';
+    @apply h-px flex-1 max-w-[120px];
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+  .ornament-divider::after {
+    background: linear-gradient(to left, transparent, var(--gold), transparent);
+  }
+
+  /* ===== KYRGYZ SHYRDAK PATTERN — simple horns ===== */
+  .kyrgyz-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c4902a' fill-opacity='0.06'%3E%3Cpath d='M40 12 C32 12 26 18 28 26 C30 32 36 32 38 28 C39 25 37 23 35 24'/%3E%3Cpath d='M40 12 C48 12 54 18 52 26 C50 32 44 32 42 28 C41 25 43 23 45 24'/%3E%3Cpath d='M40 68 C32 68 26 62 28 54 C30 48 36 48 38 52 C39 55 37 57 35 56'/%3E%3Cpath d='M40 68 C48 68 54 62 52 54 C50 48 44 48 42 52 C41 55 43 57 45 56'/%3E%3Ccircle cx='40' cy='40' r='3'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Richer ornament pattern — arkhar muyuz ram's horn scrolls */
+  .kyrgyz-pattern-rich {
+    background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c4902a' fill-opacity='0.05'%3E%3Cpath d='M60 10 C48 10 38 18 40 30 C42 38 50 38 54 33 C56 29 53 26 50 27'/%3E%3Cpath d='M60 10 C72 10 82 18 80 30 C78 38 70 38 66 33 C64 29 67 26 70 27'/%3E%3Cpath d='M60 110 C48 110 38 102 40 90 C42 82 50 82 54 87 C56 91 53 94 50 93'/%3E%3Cpath d='M60 110 C72 110 82 102 80 90 C78 82 70 82 66 87 C64 91 67 94 70 93'/%3E%3Cpath d='M10 60 C10 48 18 38 30 40 C38 42 38 50 33 54 C29 56 26 53 27 50'/%3E%3Cpath d='M10 60 C10 72 18 82 30 80 C38 78 38 70 33 66 C29 64 26 67 27 70'/%3E%3Cpath d='M110 60 C110 48 102 38 90 40 C82 42 82 50 87 54 C91 56 94 53 93 50'/%3E%3Cpath d='M110 60 C110 72 102 82 90 80 C82 78 82 70 87 66 C91 64 94 67 93 70'/%3E%3Ccircle cx='60' cy='60' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ===== PRODUCT CARD ===== */
+  .product-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-default);
+    @apply rounded-2xl overflow-hidden transition-all duration-300;
+    box-shadow: var(--shadow);
+  }
+  .product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent) 0,
+      var(--accent) 8px,
+      transparent 8px,
+      transparent 12px,
+      var(--gold) 12px,
+      var(--gold) 16px,
+      transparent 16px,
+      transparent 20px
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2;
+  }
+  .product-card:hover {
+    border-color: var(--gold);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+  }
+  .product-card:hover::before {
+    opacity: 1;
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn-kyrgyz {
+    @apply px-7 py-3 font-semibold rounded-xl transition-all duration-300;
+    background-image: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+  }
+  .btn-kyrgyz:hover {
+    @apply shadow-lg;
+    transform: translateY(-1px);
+  }
+
+  .btn-gold {
+    @apply px-7 py-3 font-semibold rounded-xl transition-all duration-300;
+    background-image: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: var(--bg-sunken);
+  }
+  .btn-gold:hover {
+    @apply shadow-lg;
+    transform: translateY(-1px);
+  }
+
+  /* ===== INPUT FIELD ===== */
+  .input-field {
+    @apply w-full px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+  }
+  .input-field::placeholder {
+    color: var(--text-faint);
+  }
+  .input-field:focus {
+    --tw-ring-color: var(--gold);
+  }
+
+  /* ===== CARD ===== */
+  .card-dark {
+    background-color: var(--bg-card);
+    @apply rounded-2xl border;
+    border-color: var(--border-default);
+  }
+
+  /* ===== THEME-AWARE TEXT HELPERS ===== */
+  .text-primary { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-muted { color: var(--text-muted); }
+  .text-faint { color: var(--text-faint); }
+  .text-accent { color: var(--accent); }
+  .text-gold { color: var(--gold); }
+  .bg-base { background-color: var(--bg-base); }
+  .bg-elevated { background-color: var(--bg-elevated); }
+  .bg-sunken { background-color: var(--bg-sunken); }
+  .bg-card { background-color: var(--bg-card); }
+  .border-default { border-color: var(--border-default); }
+  .border-strong { border-color: var(--border-strong); }
+  .border-gold { border-color: var(--gold); }
+
+  /* ===== 3D FLIP CARD ===== */
+  .flip-card {
+    perspective: 1000px;
+    width: 100%;
+    aspect-ratio: 1;
+  }
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+  .flip-card-front,
+  .flip-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  .flip-card-back {
+    transform: rotateY(180deg);
+  }
+
+  /* ===== ORNAMENT BORDERS ===== */
+  .ornament-border-top {
+    position: relative;
+  }
+  .ornament-border-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent) 0,
+      var(--accent) 12px,
+      var(--gold) 12px,
+      var(--gold) 18px,
+      transparent 18px,
+      transparent 24px
+    );
+  }
+
+  .ornament-border-bottom {
+    position: relative;
+  }
+  .ornament-border-bottom::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent) 0,
+      var(--accent) 12px,
+      var(--gold) 12px,
+      var(--gold) 18px,
+      transparent 18px,
+      transparent 24px
+    );
+  }
+
+  .ornament-frame {
+    position: relative;
+    border: 2px solid var(--border-strong);
+    border-radius: 1rem;
+  }
+  .ornament-frame::before,
+  .ornament-frame::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--gold);
+  }
+  .ornament-frame::before {
+    top: -2px;
+    left: -2px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 1rem;
+  }
+  .ornament-frame::after {
+    bottom: -2px;
+    right: -2px;
+    border-left: none;
+    border-top: none;
+    border-bottom-right-radius: 1rem;
+  }
+}
