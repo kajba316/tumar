@@ -47,7 +47,7 @@ export default function CatalogPage({ onNavigate, onAddToCart, initialCategory }
   const ALL_SLUG = 'category-mrymvcnj';
   let filtered = products;
   if (selectedCat !== 'all' && selectedCat !== ALL_SLUG) {
-    filtered = products.filter((p) => p.show_in_all_categories || p.category?.slug === selectedCat);
+    filtered = products.filter((p) => p.category?.slug === selectedCat);
   }
   if (sortBy === 'price-asc') {
     filtered = [...filtered].sort((a, b) => a.price - b.price);
@@ -80,7 +80,7 @@ export default function CatalogPage({ onNavigate, onAddToCart, initialCategory }
                 {categories.map((cat) => {
                   const count = cat.slug === ALL_SLUG
                     ? products.length
-                    : products.filter((p) => p.show_in_all_categories || p.category?.slug === cat.slug).length;
+                    : products.filter((p) => p.category?.slug === cat.slug).length;
                   return (
                     <button
                       key={cat.id}
