@@ -5,14 +5,27 @@ export type SiteUser = {
   login: string;
   name: string | null;
   is_admin: boolean;
+  email?: string | null;
+  balance?: number;
+  created_at?: string;
+};
+
+type UpdateProfileParams = {
+  userId: string;
+  currentPassword: string;
+  newEmail?: string;
+  newLogin?: string;
+  newPassword?: string;
 };
 
 type AuthContextType = {
   user: SiteUser | null;
   loading: boolean;
-  signIn: (login: string, password: string) => Promise<{ error: string | null; user?: SiteUser; token?: string }>;
-  signUp: (login: string, password: string, name: string) => Promise<{ error: string | null; user?: SiteUser; token?: string }>;
+  signIn: (loginOrEmail: string, password: string) => Promise<{ error: string | null; user?: SiteUser; token?: string }>;
+  signUp: (login: string, password: string, name: string, email: string) => Promise<{ error: string | null; user?: SiteUser; token?: string }>;
   signOut: () => Promise<void>;
+  updateUser: (updated: SiteUser) => void;
+  updateProfile: (params: UpdateProfileParams) => Promise<{ error: string | null; user?: SiteUser }>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -37,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(readUser());
   }, []);
 
-  const signIn = async (login: string, password: string) => {
+  const signIn = async (loginOrEmail: string, password: string) => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -48,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${supabaseAnonKey}`,
         },
-        body: JSON.stringify({ login, password }),
+        body: JSON.stringify({ login: loginOrEmail, password }),
       });
 
       const data = await response.json();
@@ -62,6 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login: data.user.login,
         name: data.user.name,
         is_admin: data.user.is_admin,
+        email: data.user.email,
+        balance: data.user.balance,
+        created_at: data.user.created_at,
       };
 
       localStorage.setItem(USER_KEY, JSON.stringify(siteUser));
@@ -73,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (login: string, password: string, name: string) => {
+  const signUp = async (login: string, password: string, name: string, email: string) => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -84,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${supabaseAnonKey}`,
         },
-        body: JSON.stringify({ login, password, name }),
+        body: JSON.stringify({ login, password, name, email }),
       });
 
       const data = await response.json();
@@ -98,6 +114,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login: data.user.login,
         name: data.user.name,
         is_admin: data.user.is_admin,
+        email: data.user.email,
+        balance: data.user.balance,
+        created_at: data.user.created_at,
       };
 
       localStorage.setItem(USER_KEY, JSON.stringify(siteUser));
@@ -109,6 +128,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateProfile = async (params: UpdateProfileParams) => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    try {
+      const response = await fetch(`${supabaseUrl}/functions/v1/auth-update-profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify(params),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || 'Update failed' };
+      }
+
+      const updated: SiteUser = {
+        id: data.user.id,
+        login: data.user.login,
+        name: data.user.name,
+        is_admin: data.user.is_admin,
+        email: data.user.email,
+        balance: data.user.balance,
+        created_at: data.user.created_at,
+      };
+
+      localStorage.setItem(USER_KEY, JSON.stringify(updated));
+      setUser(updated);
+      return { error: null, user: updated };
+    } catch {
+      return { error: 'Network error' };
+    }
+  };
+
+  const updateUser = (updated: SiteUser) => {
+    localStorage.setItem(USER_KEY, JSON.stringify(updated));
+    setUser(updated);
+  };
+
   const signOut = async () => {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_KEY);
@@ -116,7 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, updateUser, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

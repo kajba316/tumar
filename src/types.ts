@@ -89,6 +89,9 @@ export type SiteUser = {
   login: string;
   name: string | null;
   is_admin: boolean;
+  email?: string | null;
+  balance?: number;
+  created_at?: string;
 };
 
 export type SiteSettings = {

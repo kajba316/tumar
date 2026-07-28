@@ -25,10 +25,18 @@ Deno.serve(async (req: Request) => {
     const login = (body.login || "").toLowerCase().trim();
     const password = body.password || "";
     const name = (body.name || "").trim();
+    const email = (body.email || "").toLowerCase().trim();
 
     if (!login || !password) {
       return new Response(
         JSON.stringify({ error: "Login and password are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!email || !email.includes("@")) {
+      return new Response(
+        JSON.stringify({ error: "Valid email is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -53,15 +61,29 @@ Deno.serve(async (req: Request) => {
     );
 
     // Check if login already exists
-    const { data: existing } = await supabase
+    const { data: existingLogin } = await supabase
       .from("site_users")
       .select("id")
       .eq("login", login)
       .maybeSingle();
 
-    if (existing) {
+    if (existingLogin) {
       return new Response(
         JSON.stringify({ error: "This login is already taken" }),
+        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check if email already exists
+    const { data: existingEmail } = await supabase
+      .from("site_users")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (existingEmail) {
+      return new Response(
+        JSON.stringify({ error: "This email is already registered" }),
         { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -74,9 +96,10 @@ Deno.serve(async (req: Request) => {
         login,
         password_hash: passwordHash,
         name: name || login,
+        email,
         is_admin: false,
       })
-      .select("id, login, name, is_admin")
+      .select("id, login, name, is_admin, email, balance, created_at")
       .single();
 
     if (error) {
@@ -87,6 +110,17 @@ Deno.serve(async (req: Request) => {
     }
 
     const token = btoa(`${data.id}:${Date.now()}`);
+
+    // Log registration as first login
+    const forwarded = req.headers.get("x-forwarded-for");
+    const ip = forwarded ? forwarded.split(",")[0].trim() : null;
+    const userAgent = req.headers.get("user-agent") || null;
+
+    await supabase.from("login_history").insert({
+      user_id: data.id,
+      ip_address: ip,
+      user_agent: userAgent,
+    });
 
     return new Response(
       JSON.stringify({ user: data, token }),

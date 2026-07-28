@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/i18n/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Lock, AlertCircle, User } from 'lucide-react';
+import { Lock, AlertCircle, User, Mail } from 'lucide-react';
 
 type RegisterPageProps = {
   onNavigate: (path: string) => void;
@@ -12,6 +12,7 @@ export default function RegisterPage({ onNavigate }: RegisterPageProps) {
   const { signUp } = useAuth();
   const [name, setName] = useState('');
   const [login, setLogin] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,9 +26,9 @@ export default function RegisterPage({ onNavigate }: RegisterPageProps) {
     }
     setLoading(true);
     setError('');
-    const { error: signUpError } = await signUp(login, password, name);
+    const { error: signUpError } = await signUp(login, password, name, email);
     if (signUpError) {
-      setError(t('auth.registerError'));
+      setError(signUpError || t('auth.registerError'));
       setLoading(false);
     } else {
       onNavigate('/account');
@@ -65,6 +66,20 @@ export default function RegisterPage({ onNavigate }: RegisterPageProps) {
                 type="text" required value={login} onChange={(e) => setLogin(e.target.value)}
                 className="input-field pl-11" placeholder="login"
                 autoComplete="username"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5 text-secondary">
+              {t('auth.email')} <span className="text-error">*</span>
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-faint" />
+              <input
+                type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                className="input-field pl-11" placeholder="email@example.com"
+                autoComplete="email"
               />
             </div>
           </div>

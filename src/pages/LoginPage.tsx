@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/i18n/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { User, Lock, AlertCircle } from 'lucide-react';
-import { TundukMotif } from '@/components/Ornaments';
+import { User, Lock, AlertCircle, Mail } from 'lucide-react';
 
 type LoginPageProps = {
   onNavigate: (path: string) => void;
@@ -47,12 +46,12 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
 
         <form onSubmit={handleSubmit} className="rounded-2xl p-6 space-y-5 border shadow-2xl" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-default)' }}>
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-secondary">{t('auth.login')}</label>
+            <label className="block text-sm font-medium mb-1.5 text-secondary">{t('auth.loginOrEmail')}</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-faint" />
               <input
                 type="text" required value={login} onChange={(e) => setLogin(e.target.value)}
-                className="input-field pl-11" placeholder="login"
+                className="input-field pl-11" placeholder="login или email"
                 autoComplete="username"
               />
             </div>
@@ -85,9 +84,15 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
             {loading ? '...' : t('auth.loginBtn')}
           </button>
 
-          <button type="button" onClick={() => onNavigate('/register')} className="w-full text-sm transition-colors text-gold hover:opacity-80">
-            {t('auth.noAccount')}
-          </button>
+          <div className="flex items-center justify-between text-sm">
+            <button type="button" onClick={() => onNavigate('/register')} className="transition-colors text-gold hover:opacity-80">
+              {t('auth.noAccount')}
+            </button>
+            <button type="button" onClick={() => onNavigate('/forgot-password')} className="flex items-center gap-1 transition-colors text-muted hover:text-gold">
+              <Mail className="w-3.5 h-3.5" />
+              {t('auth.forgotPassword')}
+            </button>
+          </div>
         </form>
       </div>
     </div>

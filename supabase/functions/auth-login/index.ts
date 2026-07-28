@@ -22,10 +22,10 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json();
-    const login = (body.login || "").toLowerCase().trim();
+    const loginOrEmail = (body.login || body.email || "").toLowerCase().trim();
     const password = body.password || "";
 
-    if (!login || !password) {
+    if (!loginOrEmail || !password) {
       return new Response(
         JSON.stringify({ error: "Login and password are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -39,12 +39,19 @@ Deno.serve(async (req: Request) => {
 
     const passwordHash = await hashPassword(password);
 
-    const { data, error } = await supabase
+    const isEmail = loginOrEmail.includes("@");
+    const query = supabase
       .from("site_users")
-      .select("id, login, name, is_admin")
-      .eq("login", login)
-      .eq("password_hash", passwordHash)
-      .maybeSingle();
+      .select("id, login, name, is_admin, email, balance, created_at")
+      .eq("password_hash", passwordHash);
+
+    if (isEmail) {
+      query.eq("email", loginOrEmail);
+    } else {
+      query.eq("login", loginOrEmail);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error || !data) {
       return new Response(
@@ -54,6 +61,17 @@ Deno.serve(async (req: Request) => {
     }
 
     const token = btoa(`${data.id}:${Date.now()}`);
+
+    // Log login history
+    const forwarded = req.headers.get("x-forwarded-for");
+    const ip = forwarded ? forwarded.split(",")[0].trim() : null;
+    const userAgent = req.headers.get("user-agent") || null;
+
+    await supabase.from("login_history").insert({
+      user_id: data.id,
+      ip_address: ip,
+      user_agent: userAgent,
+    });
 
     return new Response(
       JSON.stringify({ user: data, token }),

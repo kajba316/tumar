@@ -98,12 +98,61 @@ async function answerCallback(callbackQueryId: string) {
 async function getLinkedUser(telegramId: number) {
   const { data, error } = await supabase
     .from("site_users")
-    .select("id, login, name, is_admin")
+    .select("id, login, name, is_admin, email, balance, created_at")
     .eq("telegram_id", telegramId)
     .maybeSingle();
   if (error || !data) return null;
   return data;
 }
+
+// --- Auth state helpers ---
+
+async function getAuthState(telegramId: number) {
+  const { data } = await supabase
+    .from("telegram_auth_state")
+    .select("step, login_or_email")
+    .eq("telegram_id", telegramId)
+    .maybeSingle();
+  return data;
+}
+
+async function setAuthState(telegramId: number, step: string, loginOrEmail?: string) {
+  const { data: existing } = await supabase
+    .from("telegram_auth_state")
+    .select("id")
+    .eq("telegram_id", telegramId)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from("telegram_auth_state")
+      .update({ step, login_or_email: loginOrEmail || null, updated_at: new Date().toISOString() })
+      .eq("id", existing.id);
+  } else {
+    await supabase.from("telegram_auth_state").insert({
+      telegram_id: telegramId,
+      step,
+      login_or_email: loginOrEmail || null,
+    });
+  }
+}
+
+async function clearAuthState(telegramId: number) {
+  await supabase.from("telegram_auth_state").delete().eq("telegram_id", telegramId);
+}
+
+// --- Password hashing (must match auth-login edge function) ---
+
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+// --- Handlers ---
 
 async function handleStart(chatId: number) {
   const user = await getLinkedUser(chatId);
@@ -165,7 +214,7 @@ async function handleCategory(chatId: number, categoryId: string) {
 async function handleProduct(chatId: number, productId: string) {
   const { data: product, error } = await supabase
     .from("products")
-    .select("id, name, description, price, image_url, in_stock, stock_quantity, is_published")
+    .select("id, name, description, price, image_url, in_stock, stock_quantity, is_published, category_id")
     .eq("id", productId)
     .maybeSingle();
 
@@ -187,7 +236,7 @@ async function handleProduct(chatId: number, productId: string) {
   const keyboard: TgButton[][] = [
     [
       { text: "🛒 Заказать", callback_data: `add:${product.id}` },
-      { text: "⬅ Назад", callback_data: `cat:${productId}` },
+      { text: "⬅ Назад", callback_data: `cat:${product.category_id || ""}` },
     ],
   ];
 
@@ -446,14 +495,104 @@ async function handleSupport(chatId: number) {
   await sendMessage(chatId, text, mainKeyboard());
 }
 
+// --- In-bot login flow ---
+
 async function handleAuth(chatId: number) {
   const linked = await getLinkedUser(chatId);
   if (linked) {
     await sendMessage(
       chatId,
       `👤 <b>Вы уже вошли</b>\n\n` +
-        `Имя: <b>${escapeHtml(linked.name || linked.login)}</b>\n\n` +
-        `Доступно:\n🛒 Корзина\n📦 Заказы`,
+        `Имя: <b>${escapeHtml(linked.name || linked.login)}</b>\n` +
+        (linked.email ? `Email: <b>${escapeHtml(linked.email)}</b>\n` : "") +
+        `\nДоступно:\n🛒 Корзина\n📦 Заказы`,
+      mainKeyboard()
+    );
+    return;
+  }
+
+  await clearAuthState(chatId);
+
+  await sendMessage(
+    chatId,
+    `👤 <b>Вход в аккаунт Tumar</b>\n\n` +
+      `Если у вас уже есть аккаунт на сайте Tumar, вы можете войти прямо здесь.\n\n` +
+      `Если аккаунта ещё нет — сначала зарегистрируйтесь на сайте:\n👉 ${SITE_URL}/register`,
+    [
+      [{ text: "✅ У меня есть аккаунт", callback_data: "auth_start" }],
+      [{ text: "⬅ Назад", callback_data: "cmd_start" }],
+    ]
+  );
+}
+
+async function handleAuthStart(chatId: number) {
+  await setAuthState(chatId, "awaiting_login");
+  await sendMessage(
+    chatId,
+    `👤 <b>Вход в аккаунт</b>\n\n` +
+      `Введите ваш логин или E-mail:`,
+    [[{ text: "❌ Отмена", callback_data: "cmd_auth" }]]
+  );
+}
+
+async function handleAuthLoginInput(chatId: number, text: string) {
+  await setAuthState(chatId, "awaiting_password", text.trim());
+  await sendMessage(
+    chatId,
+    `🔑 Введите пароль:`,
+    [[{ text: "❌ Отмена", callback_data: "cmd_auth" }]]
+  );
+}
+
+async function handleAuthPasswordInput(chatId: number, password: string) {
+  const state = await getAuthState(chatId);
+  if (!state || state.step !== "awaiting_password" || !state.login_or_email) {
+    await handleAuth(chatId);
+    return;
+  }
+
+  const loginOrEmail = state.login_or_email.toLowerCase().trim();
+  const passwordHash = await hashPassword(password);
+
+  const isEmail = loginOrEmail.includes("@");
+  const query = supabase
+    .from("site_users")
+    .select("id, login, name, is_admin, email, balance, created_at")
+    .eq("password_hash", passwordHash);
+
+  if (isEmail) {
+    query.eq("email", loginOrEmail);
+  } else {
+    query.eq("login", loginOrEmail);
+  }
+
+  const { data: user, error } = await query.maybeSingle();
+
+  if (error || !user) {
+    await clearAuthState(chatId);
+    await sendMessage(
+      chatId,
+      `❌ Неверный логин или пароль.\n\nПопробуйте снова:`,
+      [
+        [{ text: "🔄 Попробовать снова", callback_data: "auth_start" }],
+        [{ text: "⬅ Назад", callback_data: "cmd_start" }],
+      ]
+    );
+    return;
+  }
+
+  // Link Telegram to the account
+  const { error: linkError } = await supabase
+    .from("site_users")
+    .update({ telegram_id: chatId })
+    .eq("id", user.id);
+
+  await clearAuthState(chatId);
+
+  if (linkError) {
+    await sendMessage(
+      chatId,
+      `❌ Не удалось привязать Telegram. Возможно, этот Telegram уже привязан к другому аккаунту.`,
       mainKeyboard()
     );
     return;
@@ -461,11 +600,12 @@ async function handleAuth(chatId: number) {
 
   await sendMessage(
     chatId,
-    `👤 <b>Вход в аккаунт Tumar</b>\n\n` +
-      `Для входа перейдите на сайт Tumar и войдите в свой аккаунт, затем привяжите Telegram в личном кабинете:\n\n` +
-      `👉 ${SITE_URL}/account\n\n` +
-      `После привязки бот будет узнавать вас автоматически.`,
-    [[{ text: "⬅ Назад", callback_data: "cmd_start" }]]
+    `✅ <b>Вход выполнен успешно!</b>\n\n` +
+      `👤 Имя: <b>${escapeHtml(user.name || user.login)}</b>\n` +
+      (user.email ? `✉ Email: <b>${escapeHtml(user.email)}</b>\n` : "") +
+      `\nВаш Telegram привязан к аккаунту. Теперь сайт и бот используют один аккаунт.\n\n` +
+      `Доступно:\n🛒 Корзина\n📦 Заказы`,
+    mainKeyboard()
   );
 }
 
@@ -473,6 +613,25 @@ async function processUpdate(update: TgUpdate) {
   if (update.message && update.message.text) {
     const chatId = update.message.chat.id;
     const text = update.message.text.trim();
+
+    // Check if user is in auth flow
+    const state = await getAuthState(chatId);
+    if (state) {
+      if (text === "/cancel" || text === "❌ Отмена") {
+        await clearAuthState(chatId);
+        await handleAuth(chatId);
+        return;
+      }
+      if (state.step === "awaiting_login") {
+        await handleAuthLoginInput(chatId, text);
+        return;
+      }
+      if (state.step === "awaiting_password") {
+        await handleAuthPasswordInput(chatId, text);
+        return;
+      }
+    }
+
     if (text === "/start" || text.startsWith("/start")) await handleStart(chatId);
     else if (text === "/catalog") await handleCatalog(chatId);
     else if (text === "/cart") await handleCart(chatId);
@@ -486,6 +645,12 @@ async function processUpdate(update: TgUpdate) {
     if (!chatId) return;
     await answerCallback(cb.id);
     const data = cb.data || "";
+
+    // Cancel any auth state when a non-auth callback is pressed
+    if (!data.startsWith("auth_")) {
+      await clearAuthState(chatId);
+    }
+
     if (data === "cmd_start") await handleStart(chatId);
     else if (data === "cmd_catalog") await handleCatalog(chatId);
     else if (data === "cmd_cart") await handleCart(chatId);
@@ -493,6 +658,7 @@ async function processUpdate(update: TgUpdate) {
     else if (data === "cmd_delivery") await handleDelivery(chatId);
     else if (data === "cmd_support") await handleSupport(chatId);
     else if (data === "cmd_auth") await handleAuth(chatId);
+    else if (data === "auth_start") await handleAuthStart(chatId);
     else if (data === "cmd_checkout") await handleCheckout(chatId);
     else if (data === "cmd_clearcart") await handleClearCart(chatId);
     else if (data.startsWith("cat:")) await handleCategory(chatId, data.slice(4));

@@ -147,7 +147,8 @@ function AppInner() {
       page = user ? <AccountPage onNavigate={navigate} /> : <RegisterPage onNavigate={navigate} />;
       break;
     case '/account':
-      page = user ? <AccountPage onNavigate={navigate} /> : <LoginPage onNavigate={navigate} />;
+      if (user) return <AccountPage onNavigate={navigate} />;
+      page = <LoginPage onNavigate={navigate} />;
       break;
     default:
       if (basePath.startsWith('/product/')) {
