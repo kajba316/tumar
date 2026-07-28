@@ -342,7 +342,7 @@ function ProductForm({ product, categories, onSave, onClose }: {
                   className="flex-1 px-4 py-2.5 rounded-xl border focus:outline-none"
                   style={inputStyle}>
                   <option value="">—</option>
-                  {categoryList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {categoryList.filter((c) => c.slug !== 'category-mrymvcnj').map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
                 <button
                   type="button"

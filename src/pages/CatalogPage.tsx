@@ -47,7 +47,7 @@ export default function CatalogPage({ onNavigate, onAddToCart, initialCategory }
   const ALL_SLUG = 'category-mrymvcnj';
   let filtered = products;
   if (selectedCat !== 'all' && selectedCat !== ALL_SLUG) {
-    filtered = products.filter((p) => p.category?.slug === ALL_SLUG || p.category?.slug === selectedCat);
+    filtered = products.filter((p) => p.show_in_all_categories || p.category?.slug === selectedCat);
   }
   if (sortBy === 'price-asc') {
     filtered = [...filtered].sort((a, b) => a.price - b.price);
@@ -77,20 +77,10 @@ export default function CatalogPage({ onNavigate, onAddToCart, initialCategory }
                 <h2 className="font-serif font-semibold text-primary">{t('home.categories')}</h2>
               </div>
               <div className="space-y-1">
-                <button
-                  onClick={() => setSelectedCat('all')}
-                  className="w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors"
-                  style={selectedCat === 'all'
-                    ? { backgroundColor: 'var(--accent-light)', color: 'var(--accent)', fontWeight: 500, border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)' }
-                    : { color: 'var(--text-secondary)' }
-                  }
-                  onMouseEnter={(e) => { if (selectedCat !== 'all') e.currentTarget.style.backgroundColor = 'var(--bg-sunken)'; }}
-                  onMouseLeave={(e) => { if (selectedCat !== 'all') e.currentTarget.style.backgroundColor = 'transparent'; }}
-                >
-                  {t('catalog.allItems')} ({products.length})
-                </button>
                 {categories.map((cat) => {
-                  const count = products.filter((p) => p.category?.slug === cat.slug).length;
+                  const count = cat.slug === ALL_SLUG
+                    ? products.length
+                    : products.filter((p) => p.show_in_all_categories || p.category?.slug === cat.slug).length;
                   return (
                     <button
                       key={cat.id}
