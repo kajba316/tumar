@@ -156,7 +156,7 @@ export default function AccountPage({ onNavigate }: AccountPageProps) {
   };
 
   const handleReconnectTelegram = () => {
-    window.open('https://t.me/tumar_shop_bot?start=link', '_blank');
+    window.open('https://t.me/TUMAR_KG_BOT?start=link', '_blank');
   };
 
   const handleLogout = () => {
@@ -281,7 +281,7 @@ export default function AccountPage({ onNavigate }: AccountPageProps) {
                     </span>
                   ) : (
                     <a
-                      href="https://t.me/tumar_shop_bot?start=link"
+                      href="https://t.me/TUMAR_KG_BOT?start=link"
                       target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-2 px-4 py-2.5 font-medium rounded-xl text-white transition-all hover:shadow-lg"
                       style={{ background: 'linear-gradient(135deg, #229ED9, #1b8cc4)' }}

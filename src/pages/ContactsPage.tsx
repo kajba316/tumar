@@ -62,7 +62,7 @@ export default function ContactsPage() {
             </div>
 
             <a
-              href="https://t.me/tumar_shop_bot"
+              href="https://t.me/TUMAR_KG_BOT"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-5 flex items-center gap-4 p-4 rounded-2xl border transition-all hover:shadow-lg"
