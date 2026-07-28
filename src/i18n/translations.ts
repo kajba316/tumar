@@ -67,6 +67,7 @@ export type TranslationKey =
   | 'checkout.cardNumber' | 'checkout.cardExpiry' | 'checkout.cardCvv' | 'checkout.cardName'
   | 'checkout.cardInfo' | 'checkout.cardNote'
   | 'admin.markPaid' | 'admin.paymentUnpaid' | 'admin.paymentPaid' | 'admin.payment'
+  | 'admin.productGallery' | 'admin.productGalleryHint'
   | 'auth.loginOrEmail' | 'auth.forgotPassword' | 'auth.email' | 'auth.passwordMismatch'
   | 'auth.noChanges' | 'auth.profileUpdated'
   | 'account.title' | 'account.profile' | 'account.account' | 'account.history'
@@ -323,6 +324,8 @@ const ru: TranslationDict = {
   'admin.paymentUnpaid': 'Не оплачен',
   'admin.paymentPaid': 'Оплачен',
   'admin.payment': 'Оплата',
+  'admin.productGallery': 'Галерея фото',
+  'admin.productGalleryHint': 'Добавьте несколько фотографий товара. Первое фото — главное (отмечено цифрой). Используйте стрелки для изменения порядка.',
   'auth.loginOrEmail': 'Логин или E-mail',
   'auth.forgotPassword': 'Забыли пароль?',
   'auth.email': 'E-mail',
@@ -618,6 +621,8 @@ const en: TranslationDict = {
   'admin.paymentUnpaid': 'Unpaid',
   'admin.paymentPaid': 'Paid',
   'admin.payment': 'Payment',
+  'admin.productGallery': 'Photo Gallery',
+  'admin.productGalleryHint': 'Add multiple product photos. The first photo is the main one (marked with a number). Use arrows to reorder.',
   'auth.loginOrEmail': 'Login or E-mail',
   'auth.forgotPassword': 'Forgot password?',
   'auth.email': 'E-mail',
@@ -913,6 +918,8 @@ const kg: TranslationDict = {
   'admin.paymentUnpaid': 'Төлөнөө',
   'admin.paymentPaid': 'Төлөндү',
   'admin.payment': 'Төлөө',
+  'admin.productGallery': 'Фото галерея',
+  'admin.productGalleryHint': 'Товардун бир нече фотоосун кошуңуз. Биринчи фото — башкы (номер менен белгиленген). Тартибин өзгөртүү үчүн жебелерди колдонуңуз.',
   'auth.loginOrEmail': 'Логин же E-mail',
   'auth.forgotPassword': 'Сырсөздү унуттуңузбу?',
   'auth.email': 'E-mail',

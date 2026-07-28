@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { formatPrice } from '@/lib/format';
 import { useLanguage } from '@/i18n/LanguageContext';
 import type { Product, Category } from '@/types';
-import { Plus, Pencil, Trash2, X, Search, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Search, Eye, EyeOff, ImageIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import ImagePicker from '@/components/ImagePicker';
 
 export default function AdminProducts() {
@@ -362,6 +362,62 @@ function ProductForm({ product, categories, onSave, onClose }: {
           <div>
             <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('admin.productImage')}</label>
             <ImagePicker value={imageUrl} onChange={setImageUrl} category="product" />
+
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                {t('admin.productGallery')}
+              </label>
+              <div className="flex flex-wrap gap-3 mb-3">
+                {images.map((img, idx) => (
+                  <div key={idx} className="relative group">
+                    <img src={img} alt={`gallery ${idx + 1}`} className="w-20 h-20 rounded-xl object-cover border" style={{ borderColor: 'var(--border-default)' }} />
+                    <div className="absolute inset-0 rounded-xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (idx > 0) {
+                            const next = [...images];
+                            [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+                            setImages(next);
+                          }
+                        }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white hover:bg-white/20"
+                        title="Влево"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5 -rotate-90" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (idx < images.length - 1) {
+                            const next = [...images];
+                            [next[idx + 1], next[idx]] = [next[idx], next[idx + 1]];
+                            setImages(next);
+                          }
+                        }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white hover:bg-white/20"
+                        title="Вправо"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5 -rotate-90" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImages(images.filter((_, i) => i !== idx))}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white hover:bg-red-500/60"
+                        title="Удалить"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    {idx === 0 && (
+                      <span className="absolute -top-1.5 -left-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: 'var(--gold)' }}>1</span>
+                    )}
+                  </div>
+                ))}
+                <ImagePicker value="" onChange={(url) => { if (url) setImages([...images, url]); }} category="product" label="" />
+              </div>
+              <p className="text-xs" style={{ color: 'var(--text-faint)' }}>{t('admin.productGalleryHint')}</p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

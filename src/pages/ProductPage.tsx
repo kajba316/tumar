@@ -18,6 +18,7 @@ export default function ProductPage({ slug, onNavigate, onAddToCart }: ProductPa
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
 
   const maxQty = product?.stock_quantity || 0;
   const outOfStock = !product?.in_stock || maxQty <= 0;
@@ -32,6 +33,7 @@ export default function ProductPage({ slug, onNavigate, onAddToCart }: ProductPa
         .maybeSingle();
       if (error) console.error('Product page error:', error);
       setProduct(data);
+      setActiveImg(0);
       setLoading(false);
     })();
   }, [slug]);
@@ -87,9 +89,35 @@ export default function ProductPage({ slug, onNavigate, onAddToCart }: ProductPa
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         <div className="relative">
-          <div className="aspect-square rounded-2xl overflow-hidden border shadow-md" style={{ backgroundColor: 'var(--bg-sunken)', borderColor: 'var(--border-default)' }}>
-            <img src={product.image_url || ''} alt={name} className="w-full h-full object-cover" />
-          </div>
+          {(() => {
+            const allImages = [product.image_url, ...(product.images || [])].filter(Boolean) as string[];
+            const gallery = allImages.length > 0 ? allImages : [''];
+            const currentImg = gallery[activeImg];
+            return (
+              <>
+                <div className="aspect-square rounded-2xl overflow-hidden border shadow-md" style={{ backgroundColor: 'var(--bg-sunken)', borderColor: 'var(--border-default)' }}>
+                  <img src={currentImg} alt={name} className="w-full h-full object-cover transition-opacity duration-300" />
+                </div>
+                {gallery.length > 1 && (
+                  <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                    {gallery.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveImg(idx)}
+                        className="w-16 h-16 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all"
+                        style={activeImg === idx
+                          ? { borderColor: 'var(--gold)' }
+                          : { borderColor: 'var(--border-default)', opacity: 0.6 }
+                        }
+                      >
+                        <img src={img} alt={`${name} ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
           <div className="absolute -inset-2 rounded-3xl -z-10" style={{ border: '2px solid color-mix(in srgb, var(--gold) 20%, transparent)' }} />
           {product.old_price && (
             <span className="absolute top-4 left-4 text-sm font-bold px-3 py-1.5 rounded-full shadow-md" style={{ backgroundColor: 'var(--accent)', color: '#fff' }}>
