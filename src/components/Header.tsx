@@ -18,18 +18,25 @@ type HeaderProps = {
 export default function Header({ totalItems, onCartClick, onNavigate, currentPath }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
+  const [loadingLogo, setLoadingLogo] = useState(true);
   const { t, lang } = useLanguage();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase.from('site_settings').select('*').eq('id', 1).maybeSingle();
-      setSiteSettings(data);
-    })();
-  }, []);
+  (async () => {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
 
-  const siteName = siteSettings ? getSiteName(siteSettings, lang) : 'Кыргыз Сувенир';
+    setSiteSettings(data);
+    setLoadingLogo(false);
+  })();
+}, []);
+
+  const siteName = siteSettings ? getSiteName(siteSettings, lang) : '';
 
   const navItems = [
     { label: t('nav.home'), path: '/' },
@@ -54,25 +61,42 @@ export default function Header({ totalItems, onCartClick, onNavigate, currentPat
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <button onClick={() => onNavigate('/')} className="flex items-center gap-3 group">
-            {siteSettings?.logo_url ? (
-              <img
-                src={siteSettings.logo_url}
-                alt={siteName}
-                className="w-11 h-11 object-contain group-hover:scale-105 transition-transform"
-                style={{ background: 'transparent' }}
-              />
-            ) : (
-              <div
-                className="w-11 h-11 rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform"
-                style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))', boxShadow: '0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent)' }}
-              >
-                <span className="font-serif font-bold text-lg" style={{ color: '#fff' }}>{siteName.charAt(0)}</span>
-              </div>
-            )}
+        {loadingLogo ? (
+  <div className="w-11 h-11 opacity-0" />
+) : siteSettings?.logo_url ? (
+  <img
+    src={siteSettings.logo_url}
+    alt={siteName}
+    className="w-12 h-12 object-contain group-hover:scale-105 transition-transform"
+    style={{ background: 'transparent' }}
+  />
+) : (
+  <div
+    className="w-11 h-11 rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform"
+    style={{
+      background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))',
+      boxShadow: '0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent)'
+    }}
+  >
+    <span className="font-serif font-bold text-lg" style={{ color: '#fff' }}>
+      {siteName.charAt(0)}
+    </span>
+  </div>
+)}
             <div className="text-left">
-              <div className="font-serif font-bold text-lg leading-none text-primary">{siteName}</div>
-              <div className="text-xs hidden sm:block tracking-wide text-gold">Handmade in Kyrgyzstan</div>
-            </div>
+  {loadingLogo ? (
+    <div className="h-5 w-32 opacity-0" />
+  ) : (
+    <>
+      <div className="font-serif font-bold text-lg leading-none text-primary">
+        {siteName}
+      </div>
+      <div className="text-xs hidden sm:block tracking-wide text-gold">
+        Handmade in Kyrgyzstan
+      </div>
+    </>
+  )}
+</div>
           </button>
 
           {/* Desktop Nav */}

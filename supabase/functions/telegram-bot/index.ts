@@ -1,4 +1,4 @@
-import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { createClient } from 'npm:@supabase/supabase-js@2.57.4'
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -668,9 +668,9 @@ async function processUpdate(update: TgUpdate) {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 200, headers: corsHeaders });
-  }
+	if (req.method === 'OPTIONS') {
+		return new Response(null, { status: 200, headers: corsHeaders })
+	}
 
   if (!BOT_TOKEN || BOT_TOKEN === "ВСТАВИТЬ_МОЙ_ТОКЕН_СЮДА") {
     return new Response(
@@ -679,16 +679,21 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  try {
-    const body = await req.json();
-    await processUpdate(body);
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message || "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-});
+	try {
+		const body = await req.json()
+		await processUpdate(body)
+		return new Response(JSON.stringify({ ok: true }), {
+			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+		})
+	} catch (err) {
+		return new Response(
+			JSON.stringify({
+				error: err instanceof Error ? err.message : 'Internal server error',
+			}),
+			{
+				status: 500,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			},
+		)
+	}
+})

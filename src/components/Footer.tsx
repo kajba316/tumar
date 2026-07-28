@@ -26,9 +26,9 @@ export default function Footer({ onNavigate }: FooterProps) {
     })();
   }, []);
 
-  const siteName = settings ? getSiteName(settings, lang) : 'Кыргыз Сувенир';
-  const address = settings ? getSiteAddress(settings, lang) : 'г. Бишкек, ул. Исанова 42';
-  const phone = settings?.contact_phone || '+996 555 123 456';
+  const siteName = settings ? getSiteName(settings, lang) : 'Tumar';
+  const address = settings ? getSiteAddress(settings, lang) : 'г. Бишкек';
+  const phone = settings?.contact_phone || '+996 509 340 665';
   const email = settings?.contact_email || 'info@kyrgyzsouvenirs.kg';
 
   const getPageTitle = (page: SitePage) => {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LayoutDashboard, Package, ShoppingCart, Tags, MapPin, Settings, LogOut, Store, Menu, X, FileText, Globe } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import image from './image/tumar.png';
 
 type AdminLayoutProps = {
   current: string;
@@ -35,11 +36,15 @@ export default function AdminLayout({ current, onNavigate, onLogout, children }:
 
         <div className="relative p-6 border-b" style={{ borderColor: 'var(--border-default)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))', boxShadow: '0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent)' }}>
-              <span className="font-serif font-bold" style={{ color: '#fff' }}>К</span>
-            </div>
+       <div className="w-10 h-10">
+  <img 
+    src={image} 
+    alt="" 
+    className="w-10 h-10 object-cover"
+  />
+</div>
             <div>
-              <h1 className="text-base font-serif font-bold text-primary">Кыргыз Сувенир</h1>
+              <h1 className="text-base font-serif font-bold text-primary">Tumar</h1>
               <p className="text-xs text-gold">{t('admin.login')}</p>
             </div>
           </div>
